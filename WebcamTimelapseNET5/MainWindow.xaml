@@ -5,8 +5,61 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebcamTimelapseNET5"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="TimelapseWebcam" Height="450" Width="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2">
+            <WrapPanel x:Name="presetManPanel"></WrapPanel>
+        </StackPanel>
+        
+        <DockPanel Grid.Column="0" Grid.Row="1">
+            <Image x:Name="lastImage" Stretch="Uniform" DockPanel.Dock="Top"></Image>
+            
+        </DockPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1">
+            <Label>Last diff:</Label>
+            <WrapPanel>
+                <TextBlock x:Name="lastDiffTxt" FontSize="30"></TextBlock>
+                <TextBlock FontSize="20">%</TextBlock>
+            </WrapPanel>
+            <Label>Last frames per frame:</Label>
+            <WrapPanel>
+                <TextBlock x:Name="lastFpFTxt" FontSize="30"></TextBlock>
+            </WrapPanel>
 
+            <ComboBox x:Name="videoSourceCombo" DisplayMemberPath="Name"></ComboBox>
+            <WrapPanel>
+                <Label>Difference Low Threshold %</Label>
+                <TextBox x:Name="DiffLowestThreshold" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <Label>Difference High Threshold %</Label>
+                <TextBox x:Name="DiffHighestThreshold" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <Label>Max Frames per output frame</Label>
+                <TextBox x:Name="MaxFramesPerFrame" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <Label>Min Frames per output frame</Label>
+                <TextBox x:Name="MinFramesPerFrame" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <Label FontSize="10">Frames per frame max step up</Label>
+                <TextBox x:Name="FramesPerFrameMaxStepUp" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <Label FontSize="10">Frames per frame max step down</Label>
+                <TextBox x:Name="FramesPerFrameMaxStepDown" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <Button x:Name="goBtn" Click="goBtn_Click">Go</Button>
+        </StackPanel>
     </Grid>
 </Window>
