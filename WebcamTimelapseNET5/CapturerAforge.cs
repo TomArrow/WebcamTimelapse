@@ -367,10 +367,10 @@ namespace WebcamTimelapseNET5
                         n = (float)img.imageData[i] / 255.0f;
                         floatBuffer[i] = (n > 0.04045f ? (float)Math.Pow((n + 0.055) / 1.055, 2.4) : n / 12.92f);
                     }
-                    framesAddedCount++;
                     lock (frameAddBuffer)
                     {
                         floatArrayAddVectorized(ref frameAddBuffer, ref floatBuffer);
+                        framesAddedCount++;
                         /*for (int i = 0; i < frameAddBuffer.Length; i++)
                         {
                             n = (float)img.imageData[i] / 255.0f;
