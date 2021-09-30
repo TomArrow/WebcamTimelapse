@@ -10,6 +10,18 @@ namespace WebcamTimelapseNET5
 {
     class TimelapseSettings : AppSettings
     {
+        public enum DiffType
+        {
+            [Control("radioAbsDiff")]
+            ABSOLUTE,
+            [Control("radioRelDiff")]
+            RELATIVE
+        }
+
+        public DiffType diffType = DiffType.RELATIVE;
+
+        [Control("MinDiffNoiseThreshold")]
+        public double minDiffNoiseThreshold = 1f/255f/12.92f; // One unit in the dark of an image in linearized space.
         [Control("DiffLowestThreshold")]
         public double diffLowestThreshold = 1;
         [Control("DiffHighestThreshold")]

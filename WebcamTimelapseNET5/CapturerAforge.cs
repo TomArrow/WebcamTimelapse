@@ -56,6 +56,9 @@ namespace WebcamTimelapseNET5
             {
                 try
                 {
+                    bool isRelDiff = _settings.diffType == TimelapseSettings.DiffType.RELATIVE;
+                    double noiseThreshold = _settings.minDiffNoiseThreshold;
+
                     // use object
                 
                     //lock (flushLock) {  // Don't want two flush processes interfering with each otehr
@@ -67,10 +70,27 @@ namespace WebcamTimelapseNET5
                     {
 
                         float tmp;
+                        float bigger, smaller,delta;
+                        float tmpdiff,tmpAbsDiff;
                         for (int i = 0; i < frameAddBuffer.Length; i++)
                         {
                             tmp = frameAddBuffer[i] / framesAddedCount;
-                            diff += Math.Abs(tmp - lastFrameBuffer[i]);
+                            //diff += Math.Abs(tmp - lastFrameBuffer[i]);
+                            tmpAbsDiff = Math.Abs(tmp - lastFrameBuffer[i]);
+                            if (isRelDiff)
+                            {
+                                bigger = Math.Max(lastFrameBuffer[i], tmp);
+                                smaller = Math.Min(lastFrameBuffer[i], tmp);
+                                delta = bigger - smaller;
+                                tmpdiff = bigger==0?0: delta / bigger;
+                            } else
+                            {
+
+                                tmpdiff = tmpAbsDiff;
+                            }
+                            if (tmpAbsDiff < noiseThreshold) { tmpdiff = 0.0f; }
+                            diff += tmpdiff;
+
                             lastFrameBuffer[i] = tmp;
                             tmp = tmp > 0.0031308f ? 1.055f * (float)Math.Pow(tmp, 1 / 2.4) - 0.055f : 12.92f * tmp;
                             writeBuffer[i] = (byte)Math.Max(0.0f, Math.Min(255.0f, tmp * 255.0f));

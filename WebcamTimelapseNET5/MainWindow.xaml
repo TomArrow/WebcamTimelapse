@@ -59,6 +59,14 @@
                 <Label FontSize="10">Frames per frame max step down</Label>
                 <TextBox x:Name="FramesPerFrameMaxStepDown" MinWidth="30"></TextBox>
             </WrapPanel>
+            <WrapPanel>
+                <Label FontSize="10">Min diff noise threshold</Label>
+                <TextBox x:Name="MinDiffNoiseThreshold" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <RadioButton x:Name="radioAbsDiff">absDiff</RadioButton>
+                <RadioButton x:Name="radioRelDiff" IsChecked="True">relDiff</RadioButton>
+            </WrapPanel>
             <Button x:Name="goBtn" Click="goBtn_Click">Go</Button>
         </StackPanel>
     </Grid>

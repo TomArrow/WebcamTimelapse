@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,6 +30,20 @@ namespace WebcamTimelapseNET5
         public MainWindow()
         {
             InitializeComponent();
+            /*
+            for(int i = 0; i < 10; i++)
+            {
+
+                bool blah2 = false;
+                bool blah = true;
+                float blahfloat = Unsafe.As<bool, float>(ref blah);
+                sbyte blahbyte = Unsafe.As<bool, sbyte>(ref blah);
+                double reverseBoolFloat = 1.0 / (double)blahfloat;
+                float blah2float = Unsafe.As<bool, float>(ref blah2);
+                MessageBox.Show(blahbyte + " , "+(blahfloat).ToString() + " , " + (reverseBoolFloat).ToString()  + " , " + (blahfloat*reverseBoolFloat).ToString() + " , " + blah2float.ToString());
+
+            }
+            */
 
             videoSourceCombo.ItemsSource = CapturerAforge.getVideoSources();
 
