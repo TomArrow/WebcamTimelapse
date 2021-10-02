@@ -12,6 +12,7 @@ using System.Numerics;
 using System.Windows.Media.Imaging;
 using System.Windows;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace WebcamTimelapseNET5
 {
@@ -329,7 +330,7 @@ namespace WebcamTimelapseNET5
         LinearAccessByteImageUnsignedHusk imageHusk = null;
         string imageHuskLock = "abc";
 
-        Dictionary<long,Task> framesBeingProcessed = new Dictionary<long,Task>();
+        ConcurrentDictionary<long,Task> framesBeingProcessed = new ConcurrentDictionary<long,Task>();
         int maxFramesBeingProcessed = Environment.ProcessorCount;
 
         long index = 0;
@@ -341,8 +342,10 @@ namespace WebcamTimelapseNET5
             {
                 Bitmap imgHere = (Bitmap) eventArgs.Frame.Clone();
                 long indexHere = index;
-                Task processingTask;
-                framesBeingProcessed.Add(indexHere,Task.Run(() =>
+                //Task.Run()
+                //Task processingTask = Task.Run(() =>
+                //Task processingTask = Task.Factory.StartNew(() =>
+                Task processingTask = new Task(() =>
                 {
 
                     // get new frame
@@ -383,9 +386,25 @@ namespace WebcamTimelapseNET5
                             Flush();
                         }
                     }
-                    framesBeingProcessed.Remove(indexHere);
-                }));
 
+                    if (framesBeingProcessed.ContainsKey(indexHere))
+                    {
+
+                        bool success = false;
+                        while (!success)
+                        {
+
+                            success = framesBeingProcessed.TryRemove(indexHere, out _);
+                        }
+                    }
+                });
+                bool success = false;
+                while (!success)
+                {
+
+                    success = framesBeingProcessed.TryAdd(indexHere,processingTask);
+                }
+                processingTask.Start();
             }
         }
 

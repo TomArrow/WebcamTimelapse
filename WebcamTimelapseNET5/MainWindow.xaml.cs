@@ -30,6 +30,9 @@ namespace WebcamTimelapseNET5
         public MainWindow()
         {
             InitializeComponent();
+
+            Console.WriteLine(Color.FixRGBConvertedAsPC709fromLimitedSource);
+
             /*
             for(int i = 0; i < 10; i++)
             {
