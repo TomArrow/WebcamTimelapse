@@ -21,6 +21,17 @@ namespace WebcamTimelapseNET5
         }
         public InputType inputType = InputType.SRGB;
 
+        public enum OutputType
+        {
+            [Control("radioOutputSRGB")]
+            SRGB,
+            [Control("radioOutputRec709Limited")]
+            Rec709_LIMITED,
+            [Control("radioOutputRec709Full")]
+            Rec709_FULL
+        }
+        public OutputType outputType = OutputType.SRGB;
+
         public enum DiffType
         {
             [Control("radioAbsDiff")]

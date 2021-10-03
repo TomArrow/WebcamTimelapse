@@ -66,8 +66,14 @@
             <WrapPanel>
                 <Label>Input:</Label>
                 <RadioButton x:Name="radioInputSRGB" IsChecked="True">sRGB</RadioButton>
-                <RadioButton x:Name="radioInputRec709Limited">PC.709</RadioButton>
-                <RadioButton x:Name="radioInputRec709Full">Rec709</RadioButton>
+                <RadioButton x:Name="radioInputRec709Limited">Rec709</RadioButton>
+                <RadioButton x:Name="radioInputRec709Full">PC.709</RadioButton>
+            </WrapPanel>
+            <WrapPanel>
+                <Label>Out:</Label>
+                <RadioButton x:Name="radioOutputSRGB" IsChecked="True">sRGB</RadioButton>
+                <RadioButton x:Name="radioOutputRec709Limited">Rec709</RadioButton>
+                <RadioButton x:Name="radioOutputRec709Full">PC.709</RadioButton>
             </WrapPanel>
             <WrapPanel>
                 <RadioButton x:Name="radioAbsDiff">absDiff</RadioButton>

@@ -38,9 +38,23 @@ namespace WebcamTimelapseNET5
 
         private Action<CaptureResult> _resultAnalysis;
 
+        private Matrix4x4 inverseRec709Fix;
+        private Matrix4x4 inverseRec709Fix_transposed;
+
+        private Vector3 vec255 = new Vector3(255f, 255f, 255f);
+        private Vector3 vec0 = Vector3.Zero;
+
         public CapturerAforge(Action<CaptureResult> resultAnalysis)
         {
             _resultAnalysis = resultAnalysis;
+
+            if(Matrix4x4.Invert(Color.FixRGBConvertedAsPC709fromLimitedSource,out inverseRec709Fix))
+            {
+                inverseRec709Fix_transposed = Matrix4x4.Transpose(inverseRec709Fix);
+            } else
+            {
+                throw new Exception("Rec709 fix matrix cannot be inverted.");
+            }
         }
 
         private float _framesPerFrame = 120;
@@ -73,7 +87,7 @@ namespace WebcamTimelapseNET5
                         float tmp;
                         float bigger, smaller,delta;
                         float tmpdiff,tmpAbsDiff;
-                        for (int i = 0; i < frameAddBuffer.Length; i++)
+                        /*for (int i = 0; i < frameAddBuffer.Length; i++)
                         {
                             tmp = frameAddBuffer[i] / framesAddedCount;
                             //diff += Math.Abs(tmp - lastFrameBuffer[i]);
@@ -96,6 +110,85 @@ namespace WebcamTimelapseNET5
                             tmp = tmp > 0.0031308f ? 1.055f * (float)Math.Pow(tmp, 1 / 2.4) - 0.055f : 12.92f * tmp;
                             writeBuffer[i] = (byte)Math.Max(0.0f, Math.Min(255.0f, tmp * 255.0f));
                             frameAddBuffer[i] = 0;
+                        }*/
+                        Vector3 tmpVec,lastFrameVec,tmpAbsDiffVec;
+                        Vector3 tmpdiffVec, biggerVec, smallerVec, deltaVec;
+                        Vector3 tmpVecAbs, tmpVecSign;
+                        for (int i = 0; i < frameAddBuffer.Length-2; i+=3) //Vectorize try
+                        {
+                            tmpVec.X = frameAddBuffer[i];
+                            tmpVec.Y = frameAddBuffer[i+1];
+                            tmpVec.Z = frameAddBuffer[i+2];
+                            lastFrameVec.X = lastFrameBuffer[i];
+                            lastFrameVec.Y = lastFrameBuffer[i+1];
+                            lastFrameVec.Z = lastFrameBuffer[i+2];
+                            tmpVec /= framesAddedCount;
+                            //tmp = frameAddBuffer[i] / framesAddedCount;
+                            tmpAbsDiffVec = Vector3.Abs(tmpVec - lastFrameVec);// Math.Abs(tmp - lastFrameBuffer[i]);
+                            tmpAbsDiff = tmpAbsDiffVec.X + tmpAbsDiffVec.Y + tmpAbsDiffVec.Z;
+                            if (isRelDiff)
+                            {
+                                biggerVec = Vector3.Max(lastFrameVec, tmpVec);
+                                smallerVec = Vector3.Min(lastFrameVec, tmpVec);
+                                deltaVec = biggerVec - smallerVec;
+                                tmpdiffVec = deltaVec / biggerVec;
+                                //tmpdiff = bigger == 0 ? 0 : delta / bigger;
+                                //tmpdiff = bigger == 0 ? 0 : delta / bigger;
+                                tmpdiff = (biggerVec.X == 0 ? 0 : tmpdiffVec.X) +
+                                    (biggerVec.Y == 0 ? 0 : tmpdiffVec.Y) +
+                                    (biggerVec.Z == 0 ? 0 : tmpdiffVec.Z); // Todo check if this creates issues with negative values
+                            }
+                            else
+                            {
+
+                                tmpdiff = tmpAbsDiff;
+                            }
+                            if (tmpAbsDiff/3 < noiseThreshold) { tmpdiff = 0.0f; }
+                            diff += tmpdiff;
+
+                            lastFrameBuffer[i] = tmpVec.X;
+                            lastFrameBuffer[i+1] = tmpVec.Y;
+                            lastFrameBuffer[i+2] = tmpVec.Z;
+                            if(_settings.outputType == TimelapseSettings.OutputType.Rec709_FULL)
+                            {
+                                tmpVecAbs = Vector3.Abs(tmpVec);
+                                tmpVecSign = tmpVec/ tmpVecAbs;
+                                tmpVec.X = (float)Math.Pow(tmpVecAbs.X, 1 / 2.4)*tmpVecSign.X;
+                                tmpVec.Y = (float)Math.Pow(tmpVecAbs.Y, 1 / 2.4) * tmpVecSign.Y;
+                                tmpVec.Z = (float)Math.Pow(tmpVecAbs.Z, 1 / 2.4) * tmpVecSign.Z;
+                                tmpVec = Vector3.Max(vec0, Vector3.Min(vec255, tmpVec * 255.0f));
+                                writeBuffer[i] = (byte)tmpVec.X;
+                                writeBuffer[i + 1] = (byte)tmpVec.Y;
+                                writeBuffer[i + 2] = (byte)tmpVec.Z;
+                            } else if(_settings.outputType == TimelapseSettings.OutputType.Rec709_LIMITED)
+                            {
+                                tmpVecAbs = Vector3.Abs(tmpVec);
+                                tmpVecSign = tmpVec / tmpVecAbs;
+                                tmpVec.X = (float)Math.Pow(tmpVecAbs.X, 1 / 2.4) * tmpVecSign.X;
+                                tmpVec.Y = (float)Math.Pow(tmpVecAbs.Y, 1 / 2.4) * tmpVecSign.Y;
+                                tmpVec.Z = (float)Math.Pow(tmpVecAbs.Z, 1 / 2.4) * tmpVecSign.Z;
+                                /*tmpVec.X = (float)Math.Pow(tmpVec.X, 1 / 2.4);
+                                tmpVec.Y = (float)Math.Pow(tmpVec.Y, 1 / 2.4);
+                                tmpVec.Z = (float)Math.Pow(tmpVec.Z, 1 / 2.4);*/
+                                tmpVec = Vector3.Transform(tmpVec, inverseRec709Fix_transposed);
+                                tmpVec = Vector3.Max(vec0, Vector3.Min(vec255, tmpVec));
+                                writeBuffer[i] = (byte)tmpVec.X;
+                                writeBuffer[i + 1] = (byte)tmpVec.Y;
+                                writeBuffer[i + 2] = (byte)tmpVec.Z;
+                            } else //if(_settings.outputType == TimelapseSettings.OutputType.SRGB)
+                            {
+                                tmpVec.X = tmpVec.X > 0.0031308f ? 1.055f * (float)Math.Pow(tmpVec.X, 1 / 2.4) - 0.055f : 12.92f * tmpVec.X;
+                                tmpVec.Y = tmpVec.Y > 0.0031308f ? 1.055f * (float)Math.Pow(tmpVec.Y, 1 / 2.4) - 0.055f : 12.92f * tmpVec.Y;
+                                tmpVec.Z = tmpVec.Z > 0.0031308f ? 1.055f * (float)Math.Pow(tmpVec.Z, 1 / 2.4) - 0.055f : 12.92f * tmpVec.Z;
+                                tmpVec = Vector3.Max(vec0, Vector3.Min(vec255, tmpVec * 255.0f));
+                                //writeBuffer[i] = (byte)Math.Max(0.0f, Math.Min(255.0f, tmp * 255.0f));
+                                writeBuffer[i] = (byte)tmpVec.X;
+                                writeBuffer[i+1] = (byte)tmpVec.Y;
+                                writeBuffer[i+2] = (byte)tmpVec.Z;
+                            }
+                            frameAddBuffer[i] = 0;
+                            frameAddBuffer[i+1] = 0;
+                            frameAddBuffer[i+2] = 0;
                         }
                         framesAddedCount = 0;
                     }
