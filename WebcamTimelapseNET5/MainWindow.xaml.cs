@@ -61,8 +61,8 @@ namespace WebcamTimelapseNET5
             new CapturerAforge((CapturerAforge.CaptureResult result) => {
                 Dispatcher.Invoke(() => {
                     lastImage.Source = result.image;
-                    lastDiffTxt.Text = result.lastDiff.ToString();
-                    lastFpFTxt.Text = result.calculatedFramesPerFrame.ToString();
+                    lastDiffTxt.Text = result.lastDiff.ToString("0.000");
+                    lastFpFTxt.Text = result.calculatedFramesPerFrame.ToString("0.000");
                 });
             }).dostuff((AForge.Video.DirectShow.FilterInfo)videoSourceCombo.SelectedItem, settings);
         }

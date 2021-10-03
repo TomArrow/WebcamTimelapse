@@ -364,12 +364,40 @@ namespace WebcamTimelapseNET5
                     float n;
                     float[] floatBuffer = new float[frameAddBuffer.Length];
 
-
-                    for (int i = 0; i < frameAddBuffer.Length; i++)
+                    // Todo: Allow limited RGB output for output (to not lose detail)
+                    // Todo: Allow dithering for output.
+                    if(_settings.inputType == TimelapseSettings.InputType.Rec709_FULL)
                     {
-                        n = (float)img.imageData[i] / 255.0f;
-                        floatBuffer[i] = (n > 0.04045f ? (float)Math.Pow((n + 0.055) / 1.055, 2.4) : n / 12.92f);
+                        for (int i = 0; i < frameAddBuffer.Length; i++)
+                        {
+                            n = (float)img.imageData[i] / 255.0f;
+                            floatBuffer[i] = (float)Math.Pow(Math.Abs(n), 2.4)*Math.Sign(n);
+                        }
+                    } else if(_settings.inputType == TimelapseSettings.InputType.Rec709_LIMITED)
+                    {
+                        Vector3 tmp,tmpAbs,tmpSign;
+
+                        for (int i = 0; i < frameAddBuffer.Length-2; i+=3)
+                        {
+                            tmp.X = img.imageData[i];
+                            tmp.Y = img.imageData[i+1];
+                            tmp.Z = img.imageData[i+2];
+                            tmp = Vector3.Transform(tmp, Color.FixRGBConvertedAsPC709fromLimitedSource_transposed);
+                            tmpAbs = Vector3.Abs(tmp);
+                            tmpSign = tmp/tmpAbs;
+                            floatBuffer[i] = (float)Math.Pow(tmpAbs.X,2.4)*tmpSign.X;
+                            floatBuffer[i+1] = (float)Math.Pow(tmpAbs.Y, 2.4) * tmpSign.Y;
+                            floatBuffer[i+2] = (float)Math.Pow(tmpAbs.Z, 2.4) * tmpSign.Z;
+                        }
+                    } else //if (_settings.inputType == TimelapseSettings.InputType.SRGB)
+                    {
+                        for (int i = 0; i < frameAddBuffer.Length; i++)
+                        {
+                            n = (float)img.imageData[i] / 255.0f;
+                            floatBuffer[i] = (n > 0.04045f ? (float)Math.Pow((n + 0.055) / 1.055, 2.4) : n / 12.92f);
+                        }
                     }
+
                     lock (frameAddBuffer)
                     {
                         floatArrayAddVectorized(ref frameAddBuffer, ref floatBuffer);

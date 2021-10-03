@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebcamTimelapseNET5"
         mc:Ignorable="d"
-        Title="TimelapseWebcam" Height="450" Width="800">
+        Title="TimelapseWebcam" Height="550" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -62,6 +62,12 @@
             <WrapPanel>
                 <Label FontSize="10">Min diff noise threshold</Label>
                 <TextBox x:Name="MinDiffNoiseThreshold" MinWidth="30"></TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <Label>Input:</Label>
+                <RadioButton x:Name="radioInputSRGB" IsChecked="True">sRGB</RadioButton>
+                <RadioButton x:Name="radioInputRec709Limited">PC.709</RadioButton>
+                <RadioButton x:Name="radioInputRec709Full">Rec709</RadioButton>
             </WrapPanel>
             <WrapPanel>
                 <RadioButton x:Name="radioAbsDiff">absDiff</RadioButton>

@@ -10,6 +10,17 @@ namespace WebcamTimelapseNET5
 {
     class TimelapseSettings : AppSettings
     {
+        public enum InputType
+        {
+            [Control("radioInputSRGB")]
+            SRGB,
+            [Control("radioInputRec709Limited")]
+            Rec709_LIMITED,
+            [Control("radioInputRec709Full")]
+            Rec709_FULL
+        }
+        public InputType inputType = InputType.SRGB;
+
         public enum DiffType
         {
             [Control("radioAbsDiff")]
