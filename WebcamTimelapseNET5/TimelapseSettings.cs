@@ -56,5 +56,7 @@ namespace WebcamTimelapseNET5
         public double framesPerFrameMaxStepUp = 10;
         [Control("FramesPerFrameMaxStepDown")]
         public double framesPerFrameMaxStepDown = 300;
+        [Control("MaxSimultaneouslyProcessedFrames")]
+        public int maxSimultaneouslyProcessedFrames = 100;
     }
 }

@@ -431,7 +431,7 @@ namespace WebcamTimelapseNET5
                 NewFrameEventArgs eventArgs)
         {
             index++;
-            if(framesBeingProcessed.Count < maxFramesBeingProcessed)
+            if(framesBeingProcessed.Count < Math.Min(maxFramesBeingProcessed,_settings.maxSimultaneouslyProcessedFrames))
             {
                 Bitmap imgHere = (Bitmap) eventArgs.Frame.Clone();
                 long indexHere = index;

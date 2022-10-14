@@ -64,6 +64,10 @@
                 <TextBox x:Name="MinDiffNoiseThreshold" MinWidth="30"></TextBox>
             </WrapPanel>
             <WrapPanel>
+                <Label FontSize="9">Max simultaneously processed frames:</Label>
+                <TextBox x:Name="MaxSimultaneouslyProcessedFrames" MinWidth="30">100</TextBox>
+            </WrapPanel>
+            <WrapPanel>
                 <Label>Input:</Label>
                 <RadioButton x:Name="radioInputSRGB" IsChecked="True">sRGB</RadioButton>
                 <RadioButton x:Name="radioInputRec709Limited">Rec709</RadioButton>
